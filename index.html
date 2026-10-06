@@ -1,0 +1,825 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#F2F2F7">
+<title>Fonia VDS — esercitazioni di radiotelefonia</title>
+<style>
+:root{
+  --bg:#F2F2F7;--card:#FFFFFF;--label:#000;--sec:rgba(60,60,67,.6);--ter:rgba(60,60,67,.3);
+  --sep:rgba(60,60,67,.29);--fill:rgba(120,120,128,.12);--blue:#007AFF;--green:#34C759;
+  --red:#FF3B30;--orange:#FF9500;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--label);
+  font:17px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased}
+img{-webkit-user-drag:none;user-select:none;-webkit-touch-callout:none}
+button{font:inherit;color:inherit}
+[hidden]{display:none!important}
+
+/* barra */
+header.bar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:8px;
+  padding:calc(env(safe-area-inset-top) + 8px) 16px 8px;
+  background:rgba(242,242,247,.82);backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--sep)}
+.bar .side{flex:1;display:flex;align-items:center}
+.bar .side.r{justify-content:flex-end}
+.brand{display:flex;align-items:center;justify-content:center;text-decoration:none;color:var(--label)}
+.brand img{height:42px;width:auto;display:block}
+.brand-txt{font-weight:600;font-size:17px}
+.link{background:none;border:0;color:var(--blue);font-size:17px;padding:6px 0;cursor:pointer}
+.icon{background:none;border:0;color:var(--blue);padding:6px;cursor:pointer;display:flex}
+.icon svg{width:24px;height:24px}
+
+main{max-width:640px;margin:0 auto;padding:12px 16px calc(36px + env(safe-area-inset-bottom))}
+h1.large{font-size:34px;font-weight:700;letter-spacing:.37px;margin:10px 4px 18px}
+.card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:16px}
+.card h2{font-size:20px;font-weight:600;margin:0 0 6px;letter-spacing:.2px}
+.card p{color:var(--sec);margin:0 0 14px;font-size:15px}
+.section-label{font-size:13px;text-transform:uppercase;color:var(--sec);margin:22px 16px 7px;letter-spacing:.2px}
+.foot{color:var(--sec);font-size:13px;text-align:center;margin:22px 8px 0}
+
+.btn{display:block;width:100%;border:0;border-radius:12px;background:var(--blue);color:#fff;
+  font-size:17px;font-weight:600;padding:14px 16px;cursor:pointer;text-align:center}
+.btn:active{opacity:.75}
+.btn:disabled{opacity:.4}
+.btn.tinted{background:rgba(0,122,255,.12);color:var(--blue)}
+.btn.gray{background:var(--fill);color:var(--label)}
+.btn + .btn{margin-top:10px}
+.row{display:flex;gap:10px}
+.row .btn{margin-top:0!important}
+
+/* segmented */
+.seg{display:flex;background:var(--fill);border-radius:9px;padding:2px;margin-bottom:12px}
+.seg button{flex:1;border:0;background:none;padding:7px 4px;border-radius:7px;font-size:14px;font-weight:500;cursor:pointer}
+.seg button.on{background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.12),0 3px 1px rgba(0,0,0,.04);font-weight:600}
+
+/* chip */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:0;border-radius:18px;padding:8px 14px;font-size:15px;background:var(--fill);cursor:pointer}
+.chip.on{background:var(--blue);color:#fff}
+
+/* liste stile iOS */
+.list{background:var(--card);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.list .it{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;
+  padding:13px 16px;font-size:16px;cursor:pointer;position:relative}
+.list .it + .it::before{content:"";position:absolute;top:0;left:16px;right:0;border-top:.5px solid var(--sep)}
+.list .it:active{background:rgba(0,0,0,.05)}
+.list .it .chev{margin-left:auto;color:var(--ter);font-size:20px}
+.list .it.ok{background:rgba(52,199,89,.13)}
+.list .it.ko{background:rgba(255,59,48,.12)}
+.list .it[disabled]{cursor:default}
+.list .it .mark{margin-left:auto;font-weight:700}
+.list .it.ok .mark{color:var(--green)} .list .it.ko .mark{color:var(--red)}
+
+/* esercizio */
+.prog{display:flex;align-items:center;gap:10px;margin:4px 4px 14px;color:var(--sec);font-size:14px}
+.prog .trk{flex:1;height:4px;background:var(--fill);border-radius:2px;overflow:hidden}
+.prog .trk i{display:block;height:100%;background:var(--blue);border-radius:2px;transition:width .3s}
+.ctx{font-size:16px;color:var(--label);margin:0 0 12px!important}
+.tag{display:inline-block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;
+  color:var(--blue);background:rgba(0,122,255,.1);padding:3px 8px;border-radius:6px;margin-bottom:10px}
+.radio{display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:12px;padding:12px}
+.play{flex:none;width:46px;height:46px;border-radius:50%;border:0;background:var(--blue);color:#fff;cursor:pointer;
+  display:flex;align-items:center;justify-content:center}
+.play svg{width:20px;height:20px}
+.play.speaking{background:var(--orange)}
+.radio .who{font-size:13px;color:var(--sec)}
+.radio .txt{font-size:16px}
+.radio .txt.blur{filter:blur(6px);user-select:none}
+.toggle-txt{background:none;border:0;color:var(--blue);font-size:14px;padding:8px 0 0;cursor:pointer}
+.big-display{font-size:34px;font-weight:700;text-align:center;letter-spacing:1px;padding:14px 0 6px;font-variant-numeric:tabular-nums}
+.spelled{font-size:19px;text-align:center;padding:12px 4px;line-height:1.5}
+.kind{text-align:center;color:var(--sec);font-size:14px}
+
+.field{width:100%;border:0;background:var(--bg);border-radius:10px;padding:12px;font:inherit;font-size:17px;
+  color:var(--label);outline:none;resize:none}
+.field:focus{box-shadow:0 0 0 2px rgba(0,122,255,.35)}
+.composer{display:flex;gap:10px;align-items:flex-end;margin:12px 0}
+.composer .field{flex:1;min-height:84px}
+.mic{flex:none;width:52px;height:52px;border-radius:50%;border:0;background:var(--fill);color:var(--blue);cursor:pointer;
+  display:flex;align-items:center;justify-content:center}
+.mic svg{width:24px;height:24px}
+.mic.rec{background:var(--red);color:#fff;animation:pulse 1.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,59,48,.45)}70%{box-shadow:0 0 0 12px rgba(255,59,48,0)}100%{box-shadow:0 0 0 0 rgba(255,59,48,0)}}
+.small{font-size:13px;color:var(--sec)}
+
+.fb{border-radius:12px;padding:12px 14px;margin:12px 0;font-size:15px}
+.fb.ok{background:rgba(52,199,89,.13)}
+.fb.ko{background:rgba(255,59,48,.1)}
+.fb.mid{background:rgba(255,149,0,.13)}
+.fb b.t{display:block;font-size:17px;margin-bottom:4px}
+.fb.ok b.t{color:#248A3D} .fb.ko b.t{color:#D70015} .fb.mid b.t{color:#C93400}
+.checks{list-style:none;margin:8px 0 0;padding:0}
+.checks li{padding:3px 0 3px 26px;position:relative}
+.checks li::before{position:absolute;left:0;font-weight:700}
+.checks li.y::before{content:"✓";color:var(--green)}
+.checks li.n::before{content:"✕";color:var(--red)}
+.checks li.o::before{content:"○";color:var(--orange)}
+.model{margin-top:10px;padding-top:10px;border-top:.5px solid var(--sep)}
+.model .lbl{font-size:13px;color:var(--sec);margin-bottom:6px}
+.model .row2{display:flex;gap:10px;align-items:center}
+.model .play{width:36px;height:36px}
+.model .play svg{width:15px;height:15px}
+
+.score{text-align:center;padding:10px 0}
+.score .n{font-size:56px;font-weight:700;font-variant-numeric:tabular-nums}
+.score .p{color:var(--sec)}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0}
+.set-row input[type=text]{max-width:150px;text-align:right;text-transform:uppercase}
+input[type=range]{width:100%}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="side l"><button id="btn-exit" class="link" hidden>Esci</button></div>
+  <a class="brand" id="brand" href="./" aria-label="Home">
+    <img src="../logo-pa.png" alt="Professional Aviation Academy" draggable="false"
+      onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'brand-txt',textContent:'Fonia VDS'}))">
+  </a>
+  <div class="side r">
+    <button id="btn-set" class="icon" aria-label="Impostazioni">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- HOME -->
+  <section id="s-home">
+    <h1 class="large">Fonia VDS</h1>
+
+    <div class="card">
+      <h2>Alfabeto e numeri</h2>
+      <p>Marche, gruppi di lettere, frequenze, QNH e codici transponder. Ascolta e scrivi, leggi e decodifica, oppure pronuncia tu.</p>
+      <button class="btn" data-go="alfa">Inizia</button>
+    </div>
+
+    <div class="card">
+      <h2>Fraseologia</h2>
+      <p>10 domande su termini standard, collazione, numeri ed emergenze. Ti dico subito se è giusta e perché.</p>
+      <button class="btn" data-go="quiz">Inizia il quiz</button>
+    </div>
+
+    <div class="card">
+      <h2>Collazione</h2>
+      <p>L'ente ti dà un'istruzione a voce e tu la ripeti. Controllo che ci siano tutti gli elementi obbligatori e il nominativo.</p>
+      <button class="btn" data-go="rb">Inizia a collazionare</button>
+    </div>
+
+    <div class="card">
+      <h2>Volo simulato</h2>
+      <p>Un circuito a Ozzano in autoinformazione e una gestione di emergenza, una trasmissione alla volta.</p>
+      <button class="btn" data-go="sim">Scegli lo scenario</button>
+    </div>
+
+    <p class="foot" id="mic-note"></p>
+    <p class="foot">Strumento di studio non ufficiale, creato da un allievo VDS.<br>La fraseologia è di esempio: fanno fede le procedure del campo e quanto insegnato dalla tua scuola.</p>
+  </section>
+
+  <!-- SETUP ALFABETO -->
+  <section id="s-alfa" hidden>
+    <h1 class="large">Alfabeto e numeri</h1>
+    <div class="card">
+      <h2>Modalità</h2>
+      <div class="seg" id="alfa-mode">
+        <button data-m="ascolta" class="on">Ascolta</button>
+        <button data-m="leggi">Leggi</button>
+        <button data-m="pronuncia">Pronuncia</button>
+      </div>
+      <p id="alfa-mode-desc" style="margin:0"></p>
+    </div>
+    <div class="card">
+      <h2>Cosa allenare</h2>
+      <div class="chips" id="alfa-kinds">
+        <button class="chip on" data-k="lettere">Lettere</button>
+        <button class="chip on" data-k="marche">Marche</button>
+        <button class="chip on" data-k="freq">Frequenze</button>
+        <button class="chip on" data-k="qnh">QNH</button>
+        <button class="chip on" data-k="sq">Transponder</button>
+      </div>
+    </div>
+    <button class="btn" id="alfa-start">Avvia · 10 quesiti</button>
+  </section>
+
+  <!-- SCELTA SCENARIO -->
+  <section id="s-sim" hidden>
+    <h1 class="large">Volo simulato</h1>
+    <div class="list" id="sim-list"></div>
+    <p class="foot">Le trasmissioni degli altri traffici sono lette dalla voce sintetica. Le marche sono di fantasia.</p>
+  </section>
+
+  <!-- IMPOSTAZIONI -->
+  <section id="s-set" hidden>
+    <h1 class="large">Impostazioni</h1>
+    <div class="section-label">Il tuo aereo</div>
+    <div class="card">
+      <div class="set-row"><label for="set-cs">Nominativo</label><input id="set-cs" class="field" type="text" maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false"></div>
+      <p class="small" id="set-cs-sp" style="margin:6px 0 0"></p>
+    </div>
+    <div class="section-label">Voce</div>
+    <div class="card">
+      <div class="set-row"><span>Velocità</span><span id="set-rate-v" class="small"></span></div>
+      <input id="set-rate" type="range" min="0.7" max="1.3" step="0.05">
+      <button class="btn tinted" id="set-test" style="margin-top:12px">Prova la voce</button>
+      <p class="small" id="set-voice" style="margin:10px 0 0"></p>
+    </div>
+  </section>
+
+  <!-- ESERCIZIO (contenuto generato) -->
+  <section id="s-run" hidden></section>
+</main>
+
+<script>
+"use strict";
+/* ---------- utilità ---------- */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const rnd = n => Math.floor(Math.random()*n);
+const pick = a => a[rnd(a.length)];
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]} return a; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+const LS = {
+  get(k,d){ try{ const v=localStorage.getItem('fonia_'+k); return v==null?d:JSON.parse(v); }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem('fonia_'+k, JSON.stringify(v)); }catch(e){} }
+};
+const S = { cs: LS.get('cs','I-C485'), rate: LS.get('rate',1) };
+
+const IC_PLAY = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>';
+const IC_MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+
+/* ---------- alfabeto e numeri ---------- */
+const ICAO = {A:'Alfa',B:'Bravo',C:'Charlie',D:'Delta',E:'Echo',F:'Foxtrot',G:'Golf',H:'Hotel',I:'India',J:'Juliett',K:'Kilo',L:'Lima',M:'Mike',N:'November',O:'Oscar',P:'Papa',Q:'Quebec',R:'Romeo',S:'Sierra',T:'Tango',U:'Uniform',V:'Victor',W:'Whiskey',X:'X-ray',Y:'Yankee',Z:'Zulu'};
+// grafia "all'italiana" per far pronunciare bene la voce sintetica italiana
+const ICAO_TTS = {A:'Alfa',B:'Bravo',C:'Ciàrli',D:'Delta',E:'Eco',F:'Fòxtrot',G:'Golf',H:'Otèl',I:'India',J:'Giùliet',K:'Chìlo',L:'Lima',M:'Màik',N:'Novèmber',O:'Òscar',P:'Papà',Q:'Chebèc',R:'Ròmeo',S:'Sièrra',T:'Tango',U:'Iùniform',V:'Vìctor',W:'Uìschi',X:'Ecs rei',Y:'Iènchi',Z:'Zùlu'};
+const CIF = ['zero','uno','due','tre','quattro','cinque','sei','sette','otto','nove'];
+
+function spell(str, tts){
+  return [...String(str).toUpperCase()].filter(c=>/[A-Z0-9.]/.test(c))
+    .map(c => c==='.' ? 'decimale' : /\d/.test(c) ? CIF[+c] : (tts?ICAO_TTS:ICAO)[c]).join(' ');
+}
+const MIG = ['','mille','duemila','tremila','quattromila','cinquemila','seimila','settemila','ottomila','novemila'];
+const CEN = ['','cento','duecento','trecento','quattrocento','cinquecento','seicento','settecento','ottocento','novecento'];
+function altWords(n){ const t=Math.floor(n/1000), h=Math.floor(n%1000/100); return [MIG[t],CEN[h]].filter(Boolean).join(' '); }
+
+function csClean(cs){ return String(cs).toUpperCase().replace(/[^A-Z0-9]/g,''); }
+function csAbbr(cs){ const c=csClean(cs); return c.length>3 ? c[0]+'-'+c.slice(-2) : cs; }
+function csVars(cs){
+  const c=csClean(cs);
+  return { d: cs.toUpperCase(), s: spell(c,true),
+    ad: csAbbr(cs), as: spell(c[0]+c.slice(-2),true) };
+}
+function csRegex(cs){
+  const c=csClean(cs).toLowerCase(), mid=Math.max(0,c.length-3);
+  return `(${escRe(c)}|${escRe(c[0])}[a-z0-9]{0,${mid}}${escRe(c.slice(-2))})`;
+}
+
+/* ---------- normalizzazione delle risposte (scritte o dettate) ---------- */
+const NUMW = {zero:'0',uno:'1',un:'1',due:'2',tre:'3',quattro:'4',cinque:'5',sei:'6',sette:'7',otto:'8',nove:'9',
+  one:'1',two:'2',three:'3',tree:'3',four:'4',fower:'4',five:'5',fife:'5',six:'6',seven:'7',eight:'8',nine:'9',niner:'9',
+  decimale:'.',decimal:'.',virgola:'.'};
+const LETW = {alfa:'a',alpha:'a',bravo:'b',charlie:'c',charly:'c',ciarli:'c',delta:'d',echo:'e',eco:'e',foxtrot:'f',focstrot:'f',
+  golf:'g',hotel:'h',otel:'h',india:'i',juliett:'j',juliet:'j',giuliet:'j',kilo:'k',chilo:'k',lima:'l',mike:'m',maik:'m',
+  november:'n',oscar:'o',papa:'p',quebec:'q',chebec:'q',romeo:'r',sierra:'s',tango:'t',uniform:'u',iuniform:'u',
+  victor:'v',whiskey:'w',whisky:'w',uischi:'w',xray:'x',yankee:'y',ienchi:'y',zulu:'z'};
+const UNI = {due:2,tre:3,quattro:4,cinque:5,sei:6,sette:7,otto:8,nove:9};
+function parseMag(t){
+  const m = t.match(/^(mille|(due|tre|quattro|cinque|sei|sette|otto|nove)mila)?((due|tre|quattro|cinque|sei|sette|otto|nove)?cento)?$/);
+  if(!m || (!m[1] && !m[3])) return null;
+  let v=0;
+  if(m[1]) v += m[1]==='mille' ? 1000 : UNI[m[2]]*1000;
+  if(m[3]) v += (m[4] ? UNI[m[4]] : 1)*100;
+  return v;
+}
+function norm(s){
+  s = String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  s = s.replace(/(\d)\s*,\s*(\d)/g,'$1.$2')
+       .replace(/x[\s-]?ray|ecs\s?rei|ics\s?rei/g,'xray')
+       .replace(/[^a-z0-9.]+/g,' ');
+  const out=[]; let lastMag=false;
+  for(const t0 of s.split(' ')){
+    if(!t0) continue;
+    const t = /^\d+(\.\d+)?$/.test(t0) ? t0 : t0.replace(/\./g,'');
+    if(!t) continue;
+    if(LETW[t]){ out.push(LETW[t]); lastMag=false; continue; }
+    if(t in NUMW){ out.push(NUMW[t]); lastMag=false; continue; }
+    const m = parseMag(t);
+    if(m!=null){ if(lastMag) out[out.length-1]=String(+out[out.length-1]+m); else out.push(String(m)); lastMag=true; continue; }
+    out.push(t); lastMag=false;
+  }
+  return out.join('');
+}
+
+/* ---------- voce ---------- */
+let AC=null;
+function squelch(){
+  try{
+    AC = AC || new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==='suspended') AC.resume();
+    const n=Math.floor(AC.sampleRate*0.13), b=AC.createBuffer(1,n,AC.sampleRate), d=b.getChannelData(0);
+    for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-i/n);
+    const src=AC.createBufferSource(); src.buffer=b;
+    const f=AC.createBiquadFilter(); f.type='bandpass'; f.frequency.value=1700; f.Q.value=.7;
+    const g=AC.createGain(); g.gain.value=.1;
+    src.connect(f); f.connect(g); g.connect(AC.destination); src.start();
+  }catch(e){}
+}
+const HAS_TTS = 'speechSynthesis' in window;
+let VOICE=null;
+function pickVoice(){
+  if(!HAS_TTS) return;
+  const vs=speechSynthesis.getVoices().filter(v=>/^it([-_]|$)/i.test(v.lang));
+  VOICE = vs.find(v=>v.localService) || vs[0] || null;
+}
+if(HAS_TTS){ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }
+let speakingBtn=null;
+function say(text, btn){
+  if(!HAS_TTS) return;
+  speechSynthesis.cancel();
+  if(speakingBtn) speakingBtn.classList.remove('speaking');
+  speakingBtn = btn||null;
+  if(btn) btn.classList.add('speaking');
+  squelch();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='it-IT'; if(VOICE) u.voice=VOICE; u.rate=S.rate;
+  u.onend=u.onerror=()=>{ if(btn) btn.classList.remove('speaking'); squelch(); };
+  speechSynthesis.speak(u);
+}
+
+/* ---------- riconoscimento vocale ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let activeRec=null;
+function stopRec(){ if(activeRec){ try{activeRec.abort()}catch(e){} activeRec=null; } }
+function wireMic(btn, field){
+  if(!SR){ btn.hidden=true; return; }
+  btn.onclick = () => {
+    if(activeRec){ activeRec.stop(); return; }
+    if(HAS_TTS) speechSynthesis.cancel();
+    const rec=new SR(); activeRec=rec;
+    rec.lang='it-IT'; rec.interimResults=true; rec.continuous=false; rec.maxAlternatives=1;
+    const base = field.value.trim() ? field.value.trim()+' ' : '';
+    rec.onresult = e => { let t=''; for(const r of e.results) t+=r[0].transcript; field.value = base+t; };
+    rec.onend = () => { btn.classList.remove('rec'); if(activeRec===rec) activeRec=null; };
+    rec.onerror = () => {};
+    btn.classList.add('rec');
+    try{ rec.start(); }catch(e){ btn.classList.remove('rec'); activeRec=null; }
+  };
+}
+
+/* ---------- navigazione ---------- */
+const RUN = $('#s-run');
+let running=false, depth=0;
+function show(id, push=true){
+  stopRec(); if(HAS_TTS) speechSynthesis.cancel();
+  $$('main > section').forEach(s=>s.hidden = s.id!=='s-'+id);
+  $('#btn-exit').hidden = id==='home';
+  running = id==='run';
+  if(push && id!=='home'){ history.pushState({s:id},''); depth++; }
+  window.scrollTo(0,0);
+}
+function goHome(){
+  if(running && !confirm('Vuoi uscire dall\'esercitazione?')) return;
+  running=false;
+  if(depth>0) history.go(-depth); else show('home',false);
+}
+window.addEventListener('popstate', e => {
+  if(running && !confirm('Vuoi uscire dall\'esercitazione?')){ history.pushState({s:'run'},''); return; }
+  const s = e.state && e.state.s;
+  if(!s){ depth=0; show('home',false); return; }
+  depth=Math.max(0,depth-1);
+  show(s==='run' ? 'home' : s, false);
+});
+$('#brand').onclick = e => { e.preventDefault(); goHome(); };
+$('#btn-exit').onclick = goHome;
+$('#btn-set').onclick = () => { if(running && !confirm('Vuoi uscire dall\'esercitazione?')) return; openSettings(); };
+$$('[data-go]').forEach(b => b.onclick = () => {
+  const g=b.dataset.go;
+  if(g==='alfa') show('alfa'); else if(g==='quiz') startQuiz(); else if(g==='rb') startRb(); else if(g==='sim') { buildSimList(); show('sim'); }
+});
+$('#mic-note').textContent = SR
+  ? 'Puoi rispondere a voce con il pulsante del microfono, oppure scrivendo.'
+  : 'Il riconoscimento vocale non è disponibile su questo browser: rispondi scrivendo, anche con la dettatura della tastiera.';
+
+function progress(){
+  const c=CUR, tot=c.items.length;
+  return `<div class="prog"><span>${c.i+1} di ${tot}</span><div class="trk"><i style="width:${(c.i/tot*100).toFixed(1)}%"></i></div></div>`;
+}
+function composer(ph){
+  return `<div class="composer"><textarea class="field" id="ans" rows="3" placeholder="${esc(ph)}" autocomplete="off" autocapitalize="sentences" spellcheck="false"></textarea>
+    <button class="mic" id="mic" aria-label="Rispondi a voce">${IC_MIC}</button></div>`;
+}
+function radioBox(who, text, spoken, hide){
+  return `<div class="radio"><button class="play" id="play" aria-label="Ascolta">${IC_PLAY}</button>
+    <div><div class="who">${esc(who)}</div><div class="txt${hide?' blur':''}" id="rtxt">${esc(text)}</div></div></div>
+    ${hide?'<button class="toggle-txt" id="tgl">Mostra il testo</button>':''}`;
+}
+function wireRadio(spoken){
+  const p=$('#play'); if(p) p.onclick=()=>say(spoken,p);
+  const t=$('#tgl'); if(t) t.onclick=()=>{ const x=$('#rtxt'); x.classList.toggle('blur'); t.textContent = x.classList.contains('blur')?'Mostra il testo':'Nascondi il testo'; };
+}
+function modelBox(display, spoken){
+  return `<div class="model"><div class="lbl">Trasmissione di esempio</div>
+    <div class="row2"><button class="play" id="mplay" aria-label="Ascolta l'esempio">${IC_PLAY}</button><div>${esc(display)}</div></div></div>`;
+}
+let CUR=null;
+
+/* ---------- risultato ---------- */
+function showResult(title, ok, tot, extra, again){
+  const pct = tot ? Math.round(ok/tot*100) : 0;
+  const msg = pct>=90 ? 'Ottimo, sei pronto per la frequenza.' : pct>=70 ? 'Buono, ma qualche dettaglio da sistemare.' : 'Da ripassare: riprova con calma.';
+  running=false;
+  RUN.innerHTML = `<h1 class="large">${esc(title)}</h1>
+    <div class="card score"><div class="n">${ok}/${tot}</div><div class="p">${pct}% · ${msg}</div></div>
+    ${extra||''}
+    <button class="btn" id="again">Ricomincia</button>
+    <button class="btn tinted" id="home2">Torna alla home</button>`;
+  $('#again').onclick = again;
+  $('#home2').onclick = goHome;
+  window.scrollTo(0,0);
+}
+
+/* =========================================================
+   1) ALFABETO E NUMERI
+   ========================================================= */
+const LET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const MODE_DESC = {
+  ascolta:'Senti la trasmissione e scrivi quello che hai capito, per esempio I-C485 o 123.45.',
+  leggi:'Leggi la sequenza in alfabeto ICAO e scrivi la forma breve.',
+  pronuncia:'Vedi la forma breve e la pronunci tu. Poi controlli con la soluzione.'
+};
+let alfaMode='ascolta';
+$$('#alfa-mode button').forEach(b => b.onclick = () => {
+  $$('#alfa-mode button').forEach(x=>x.classList.toggle('on',x===b)); alfaMode=b.dataset.m; $('#alfa-mode-desc').textContent=MODE_DESC[alfaMode];
+});
+$('#alfa-mode-desc').textContent = MODE_DESC.ascolta;
+$$('#alfa-kinds .chip').forEach(c => c.onclick = () => {
+  c.classList.toggle('on'); if(!$$('#alfa-kinds .chip.on').length) c.classList.add('on');
+});
+function freqStr(){
+  const k=rnd(19*40); const v=118+k*0.025; let s=v.toFixed(3).replace(/0+$/,''); if(s.endsWith('.')) s+='0'; return s;
+}
+function genMarca(){
+  const r=Math.random();
+  if(r<.4) return 'I-'+LET[rnd(26)]+rnd(10)+rnd(10)+rnd(10);
+  if(r<.7) return 'I-'+(1+rnd(9))+rnd(10)+rnd(10)+rnd(10);
+  return 'I-'+[0,0,0,0].map(()=>LET[rnd(26)]).join('');
+}
+function genSq(){ let s; do{ s=[0,0,0,0].map(()=>rnd(8)).join(''); }while(/^7[567]00$/.test(s)); return s; }
+function genAlfa(kind){
+  switch(kind){
+    case 'lettere': { const n=3+rnd(3); const v=[...Array(n)].map(()=>LET[rnd(26)]).join(''); return {kind:'Gruppo di lettere',v,sp:spell(v,true),rd:spell(v,false)}; }
+    case 'marche': { const v=genMarca(); return {kind:'Marca',v,sp:spell(v,true),rd:spell(v,false)}; }
+    case 'freq': { const v=freqStr(); return {kind:'Frequenza',v,sp:spell(v,true),rd:spell(v,false)}; }
+    case 'qnh': { const v=String(995+rnd(41)); return {kind:'QNH',v,pre:'QNH',sp:'QNH '+spell(v,true),rd:'QNH '+spell(v,false)}; }
+    case 'sq': { const v=genSq(); return {kind:'Codice transponder',v,pre:'Squawk',sp:'squawk '+spell(v,true),rd:'Squawk '+spell(v,false)}; }
+  }
+}
+function alfaAnsOk(it, ans){
+  let a = norm(ans).replace(/^(qnh|squawk|transponder|codice)/,'');
+  if(it.kind==='Frequenza'){ return a!=='' && !isNaN(+a) && Math.abs(+a - +it.v) < 1e-6; }
+  return a === norm(it.v);
+}
+$('#alfa-start').onclick = () => {
+  const kinds=$$('#alfa-kinds .chip.on').map(c=>c.dataset.k);
+  CUR={mod:'alfa',mode:alfaMode,i:0,ok:0,items:[...Array(10)].map(()=>genAlfa(pick(kinds)))};
+  show('run'); alfaRender(true);
+};
+function alfaRender(auto){
+  const it=CUR.items[CUR.i], m=CUR.mode;
+  let body='';
+  if(m==='ascolta'){
+    body = `<div class="radio" style="justify-content:center"><button class="play" id="play" aria-label="Ascolta">${IC_PLAY}</button><div><div class="who">Tocca per riascoltare</div><div class="txt">${esc(it.kind)}</div></div></div>`;
+  } else if(m==='leggi'){
+    body = `<div class="kind">${esc(it.kind)}</div><div class="spelled">${esc(it.rd)}</div>`;
+  } else {
+    body = `<div class="kind">${esc(it.kind)}</div><div class="big-display">${esc((it.pre?it.pre+' ':'')+it.v)}</div>`;
+  }
+  const input = m==='pronuncia'
+    ? (SR ? composer('Tocca il microfono e pronuncia…') : '')
+    : `<input class="field" id="ans" type="text" placeholder="Scrivi la forma breve" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" style="margin:12px 0">`;
+  const btns = m==='pronuncia'
+    ? `<div id="act">${SR?'<button class="btn" id="chk">Verifica</button>':''}<button class="btn ${SR?'tinted':''}" id="sol">Mostra la soluzione</button></div>`
+    : `<div id="act"><button class="btn" id="chk">Verifica</button></div>`;
+  RUN.innerHTML = progress()+`<div class="card">${body}${input}<div id="fb"></div>${btns}</div>`;
+  if(m==='ascolta'){ const p=$('#play'); p.onclick=()=>say(it.sp,p); if(auto) say(it.sp,p); }
+  if($('#mic')) wireMic($('#mic'),$('#ans'));
+  const ans=$('#ans');
+  if(ans && m!=='pronuncia'){ ans.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); $('#chk') && $('#chk').click(); } }); }
+  if($('#chk')) $('#chk').onclick = () => {
+    stopRec();
+    const v=ans.value.trim(); if(!v){ ans.focus(); return; }
+    const good=alfaAnsOk(it,v); if(good) CUR.ok++;
+    $('#fb').innerHTML = `<div class="fb ${good?'ok':'ko'}"><b class="t">${good?'Corretto':'Non proprio'}</b>
+      ${good?'':'Soluzione: <b>'+esc((it.pre?it.pre+' ':'')+it.v)+'</b><br>'}${esc(it.rd)}</div>`;
+    nextBtn(alfaNext);
+  };
+  if($('#sol')) $('#sol').onclick = () => {
+    stopRec();
+    $('#fb').innerHTML = `<div class="fb mid"><b class="t">Soluzione</b>${esc(it.rd)}
+      <div class="model"><div class="row2"><button class="play" id="mplay">${IC_PLAY}</button><div class="small">Ascolta la pronuncia</div></div></div></div>`;
+    $('#mplay').onclick=()=>say(it.sp,$('#mplay'));
+    $('#act').innerHTML = `<p class="small" style="margin:0 0 10px;text-align:center">Com'è andata?</p>
+      <div class="row"><button class="btn gray" id="self-ko">Sbagliata</button><button class="btn" id="self-ok">Giusta</button></div>`;
+    $('#self-ok').onclick=()=>{ CUR.ok++; alfaNext(); };
+    $('#self-ko').onclick=alfaNext;
+  };
+}
+function nextBtn(fn){
+  const last = CUR.i===CUR.items.length-1;
+  $('#act').innerHTML = `<button class="btn" id="nx">${last?'Vedi il risultato':'Avanti'}</button>`;
+  $('#nx').onclick=fn;
+}
+function alfaNext(){
+  CUR.i++;
+  if(CUR.i>=CUR.items.length) return showResult('Alfabeto e numeri',CUR.ok,CUR.items.length,'',()=>$('#alfa-start').click());
+  alfaRender(true);
+}
+
+/* =========================================================
+   2) QUIZ DI FRASEOLOGIA  (la prima opzione è quella giusta)
+   ========================================================= */
+const QB = [
+ ["Cosa significa «COLLAZIONI»?",["Ripeti tutto, o la parte indicata, del messaggio così come l'hai ricevuto","Conferma di aver ricevuto dicendo «ricevuto»","Riassumi il messaggio con parole tue","Passa sulla frequenza successiva"],"È la richiesta di readback: si ripetono gli elementi esattamente come ricevuti, chiudendo con il proprio nominativo."],
+ ["«RICEVUTO» significa:",["Ho ricevuto tutta la tua ultima trasmissione","Eseguirò quanto richiesto","Sì, affermativo","Ripeti l'ultima trasmissione"],"Ricevuto non vuol dire «sì» e non sostituisce la collazione delle istruzioni che la richiedono."],
+ ["«ESEGUIRÒ» (WILCO) significa:",["Ho compreso il messaggio e lo eseguirò","Ho ricevuto ma non posso eseguire","Attendi, ti richiamo","Il messaggio è annullato"],""],
+ ["«ATTENDA» significa:",["Aspetta, ti chiamerò io","Rimani al punto attesa","Mantieni la quota attuale","Interrompi la trasmissione"],"Equivale a «standby»: non è né un'autorizzazione né un rifiuto."],
+ ["Non hai capito l'ultima trasmissione. Cosa dici?",["«Ripeta»","«Collazioni»","«Correzione»","«Negativo»"],""],
+ ["Ti accorgi di aver sbagliato mentre trasmetti. Cosa dici?",["«Correzione», poi la versione giusta","«Annulli»","«Negativo»","«Ripeta»"],""],
+ ["Quale di queste NON richiede la collazione obbligatoria?",["Le informazioni sul vento","Il QNH","Il codice transponder","L'autorizzazione al decollo"],"Vento e informazioni di traffico non si collazionano. Regolazioni altimetriche, codici transponder, istruzioni sulla pista, quote, prue e frequenze sì."],
+ ["Con cosa si chiude una collazione?",["Con il proprio nominativo","Con il nome dell'ente","Con «passo»","Con «ricevuto»"],""],
+ ["Quando puoi usare il nominativo abbreviato?",["Solo dopo che l'ente l'ha abbreviato per primo","Sempre, per risparmiare tempo","Solo nella chiamata iniziale","Mai"],""],
+ ["Come si pronuncia «QNH 1013»?",["QNH uno zero uno tre","QNH milletredici","QNH dieci tredici","QNH mille e tredici"],"Il QNH si legge cifra per cifra."],
+ ["Come si pronuncia una quota di 2500 piedi?",["Duemila cinquecento piedi","Due cinque zero zero piedi","Venticinque cento piedi","Due virgola cinque mila piedi"],"Per quote e altitudini migliaia e centinaia si dicono per esteso."],
+ ["Vento «230 gradi, 8 nodi» in radio si dice:",["Due tre zero gradi, otto nodi","Duecentotrenta gradi, otto nodi","Ventitré gradi, otto nodi","Due trenta, otto"],"La direzione del vento si legge cifra per cifra."],
+ ["Come si pronuncia la marca I-C485?",["India Charlie quattro otto cinque","I C quattrocentottantacinque","India Charlie quattrocento ottantacinque","Italia Charlie quattro otto cinque"],""],
+ ["In radio gli orari si danno in:",["UTC","Ora locale","Ora legale italiana","Ora del campo di partenza"],""],
+ ["Segnale di soccorso (pericolo grave e imminente, serve assistenza immediata):",["MAYDAY ripetuto tre volte","PAN PAN ripetuto tre volte","SOS ripetuto tre volte","EMERGENZA ripetuto due volte"],""],
+ ["Segnale di urgenza (problema di sicurezza, ma senza pericolo imminente):",["PAN PAN ripetuto tre volte","MAYDAY ripetuto tre volte","SECURITÉ ripetuto tre volte","ATTENZIONE ripetuto tre volte"],""],
+ ["Codice transponder per l'emergenza:",["7700","7600","7500","7000"],""],
+ ["Codice transponder per l'avaria radio:",["7600","7700","7500","2000"],""],
+ ["Codice transponder per interferenza illecita:",["7500","7600","7700","1200"],""],
+ ["Frequenza aeronautica internazionale di emergenza:",["121.5 MHz","118.0 MHz","123.45 MHz","130.0 MHz"],""],
+ ["Su un campo senza ente ATS, come Ozzano, le chiamate sono:",["Autoinformazioni rivolte al traffico, es. «Ozzano traffico»","Richieste di autorizzazione alla torre","Facoltative e senza una forma precisa","Rivolte sempre all'ente FIS di zona"],""],
+ ["Cosa contiene la chiamata iniziale a un ente?",["Il nome dell'ente chiamato e il tuo nominativo completo","Solo il tuo nominativo","Il nominativo abbreviato e la posizione","Solo il nome dell'ente"],""],
+ ["«AFFERMATIVO» e «NEGATIVO» significano:",["Sì / no","Ricevuto / non ricevuto","Eseguirò / non eseguirò","Autorizzato / non autorizzato"],""],
+ ["Leggibilità «5» sulla scala radio vuol dire:",["Perfettamente leggibile","Illeggibile","Leggibile a tratti","Leggibile con difficoltà"],"La scala va da 1 (illeggibile) a 5 (perfettamente leggibile)."],
+ ["Con il QNH impostato, l'altimetro indica:",["L'altitudine sul livello medio del mare","L'altezza sul campo","Il livello di volo","La quota di densità"],""],
+ ["Con il QFE impostato, all'atterraggio l'altimetro indica:",["Circa zero","L'elevazione del campo","1013","Il livello di transizione"],""],
+ ["«APPROVATO» significa:",["Il permesso richiesto è concesso","Ho ricevuto il messaggio","Il messaggio era corretto","Procedi a tua discrezione"],""],
+ ["Avaria radio in circuito: cosa fai?",["Squawk 7600, trasmetto alla cieca le mie posizioni e osservo bene il traffico","Spengo la radio e atterro subito dove capita","Squawk 7500","Esco dal circuito e aspetto che la radio torni"],""]
+];
+function startQuiz(){
+  CUR={mod:'quiz',i:0,ok:0,items:shuffle(QB).slice(0,10).map(([q,o,e])=>({q,e,opts:shuffle(o.map((t,i)=>({t,good:i===0})))}))};
+  show('run'); quizRender();
+}
+function quizRender(){
+  const it=CUR.items[CUR.i];
+  RUN.innerHTML = progress()+`<div class="card"><p class="ctx" style="font-weight:600">${esc(it.q)}</p></div>
+    <div class="list" id="opts">${it.opts.map((o,i)=>`<button class="it" data-i="${i}">${esc(o.t)}<span class="mark"></span></button>`).join('')}</div>
+    <div id="fb"></div><div id="act"></div>`;
+  $$('#opts .it').forEach(b => b.onclick = () => {
+    const o=it.opts[+b.dataset.i];
+    $$('#opts .it').forEach((x,i)=>{ x.disabled=true; if(it.opts[i].good){x.classList.add('ok');x.querySelector('.mark').textContent='✓';} });
+    if(!o.good){ b.classList.add('ko'); b.querySelector('.mark').textContent='✕'; } else CUR.ok++;
+    $('#fb').innerHTML = `<div class="fb ${o.good?'ok':'ko'}"><b class="t">${o.good?'Corretto':'Sbagliato'}</b>${esc(it.e||'')}</div>`;
+    nextBtn(()=>{ CUR.i++; if(CUR.i>=CUR.items.length) return showResult('Fraseologia',CUR.ok,CUR.items.length,'',startQuiz); quizRender(); });
+  });
+}
+
+/* =========================================================
+   Motore comune: variabili, modelli e controllo degli elementi
+   ========================================================= */
+function V(d,s){ return {d:String(d), s:String(s)}; }
+function render(tpl, vars, mode){ return tpl.replace(/\{(\w+)\}/g,(m,k)=>vars[k]?vars[k][mode]:m); }
+function compileReq(pat, vars){
+  const re = pat.replace(/\s+/g,'').replace(/\{(\w+)\}/g,(m,k)=>{
+    if(k==='CS') return csRegex(S.cs);
+    if(!vars[k]) return m;
+    return escRe(norm(vars[k].d));
+  });
+  return new RegExp(re);
+}
+function checkTx(text, req, opt, vars){
+  const n=norm(text);
+  const r = req.map(([lbl,pat])=>({lbl:render(lbl,vars,'d'), ok:compileReq(pat,vars).test(n)}));
+  const o = (opt||[]).map(([lbl,pat])=>({lbl:render(lbl,vars,'d'), ok:compileReq(pat,vars).test(n), opt:true}));
+  return {all:r.every(x=>x.ok), list:[...r,...o]};
+}
+function txFeedback(res, modelD, modelS){
+  const items = res.list.map(x=>`<li class="${x.ok?'y':(x.opt?'o':'n')}">${esc(x.lbl)}${x.opt&&!x.ok?' <span class="small">(consigliato)</span>':''}</li>`).join('');
+  return `<div class="fb ${res.all?'ok':'ko'}"><b class="t">${res.all?'Trasmissione completa':'Manca qualcosa'}</b>
+    <ul class="checks">${items}</ul>${modelBox(modelD,modelS)}</div>`;
+}
+function baseVars(){
+  const c=csVars(S.cs);
+  return { CS:V(c.d,c.s), CSA:V(c.ad,c.as) };
+}
+
+/* =========================================================
+   3) COLLAZIONE
+   ========================================================= */
+const NOM = ['Nominativo','{CS}'];
+const RB = [
+  { atc:'{CS}, QNH {QNH}.', rb:'QNH {QNH}, {CSA}.', req:[['QNH {QNH}','{QNH}'],NOM] },
+  { atc:'{CS}, rulli al punto attesa pista {RWY}, QNH {QNH}.', rb:'Rullo al punto attesa pista {RWY}, QNH {QNH}, {CSA}.',
+    req:[['Punto attesa','punto(di)?attesa'],['Pista {RWY}','pista{RWY}'],['QNH {QNH}','{QNH}'],NOM] },
+  { atc:'{CS}, vento {WD} gradi {WS} nodi, pista {RWY}, autorizzato al decollo.', rb:'Pista {RWY}, autorizzato al decollo, {CSA}.',
+    req:[['Autorizzato al decollo','autorizzat\\w*(al)?decoll'],['Pista {RWY}','pista{RWY}'],NOM], note:'Il vento non si collaziona.' },
+  { atc:'{CS}, vento {WD} gradi {WS} nodi, pista {RWY}, autorizzato all\'atterraggio.', rb:'Pista {RWY}, autorizzato all\'atterraggio, {CSA}.',
+    req:[['Autorizzato all\'atterraggio','autorizzat\\w*(all?)?atterr'],['Pista {RWY}','pista{RWY}'],NOM], note:'Il vento non si collaziona.' },
+  { atc:'{CS}, mantenga posizione, traffico in finale.', rb:'Mantengo posizione, {CSA}.',
+    req:[['Mantengo posizione','manten\\w*posizion'],NOM] },
+  { atc:'{CS}, squawk {SQ}.', rb:'Squawk {SQ}, {CSA}.', req:[['Codice {SQ}','{SQ}'],NOM] },
+  { atc:'{CS}, contatti {ENTE} su {FREQ}.', rb:'{FREQ}, {CSA}.', req:[['Frequenza {FREQ}','{FREQ}0*'],NOM] },
+  { atc:'{CS}, mantenga {ALT} piedi o inferiore, QNH {QNH}.', rb:'Mantengo {ALT} piedi o inferiore, QNH {QNH}, {CSA}.',
+    req:[['{ALT} piedi','{ALT}'],['QNH {QNH}','{QNH}'],NOM] },
+  { atc:'{CS}, viri a {DIR} prua {HDG}.', rb:'{DIRC} prua {HDG}, {CSA}.', req:[['A {DIR}','{DIR}'],['Prua {HDG}','prua{HDG}'],NOM] },
+  { atc:'{CS}, entri sottovento {SIDE} pista {RWY}, riporti in base.', rb:'Sottovento {SIDE} pista {RWY}, riporterò in base, {CSA}.',
+    req:[['Sottovento {SIDE}','sottovento{SIDE}'],['Pista {RWY}','pista{RWY}'],NOM], opt:[['Riporterò in base','riport\\w*(in)?base']] }
+];
+const RWYS = ['03','21','12','30','16','34','07','25','09','27'];
+const ENTI = ['Padova Information','Bologna Torre','Bologna Avvicinamento','Forlì Torre','Rimini Torre'];
+function rbVars(){
+  const v=baseVars();
+  const rwy=pick(RWYS), qnh=String(995+rnd(41)), wd=String(1+rnd(36)).padStart(2,'0')+'0', ws=String(3+rnd(13));
+  const hdg=String(1+rnd(36)).padStart(2,'0')+'0', alt=pick([500,1000,1500,2000,2500,3000]);
+  const dir=pick(['destra','sinistra']), side=pick(['sinistro','destro']), fq=freqStr(), sq=genSq();
+  Object.assign(v,{
+    RWY:V(rwy,spell(rwy,true)), QNH:V(qnh,spell(qnh,true)), WD:V(wd,spell(wd,true)), WS:V(ws,spell(ws,true)),
+    HDG:V(hdg,spell(hdg,true)), ALT:V(alt,altWords(alt)), DIR:V(dir,dir), DIRC:V(dir[0].toUpperCase()+dir.slice(1),dir),
+    SIDE:V(side,side), FREQ:V(fq,spell(fq,true)), SQ:V(sq,spell(sq,true)), ENTE:V(pick(ENTI),'')
+  });
+  v.ENTE.s=v.ENTE.d;
+  return v;
+}
+function startRb(){
+  CUR={mod:'rb',i:0,ok:0,items:shuffle(RB).slice(0,8).map(t=>({t,v:rbVars()}))};
+  show('run'); rbRender(true);
+}
+function rbRender(auto){
+  const {t,v}=CUR.items[CUR.i];
+  const atcD=render(t.atc,v,'d'), atcS=render(t.atc,v,'s');
+  RUN.innerHTML = progress()+`<div class="card"><span class="tag">Collaziona</span>
+    ${radioBox('Ente ATS',atcD,atcS,true)}
+    ${composer('Scrivi o detta la tua collazione…')}
+    <div id="fb"></div><div id="act"><button class="btn" id="chk">Trasmetti</button></div></div>`;
+  wireRadio(atcS); if(auto) say(atcS,$('#play'));
+  wireMic($('#mic'),$('#ans'));
+  $('#chk').onclick = () => {
+    stopRec();
+    const a=$('#ans').value.trim(); if(!a){ $('#ans').focus(); return; }
+    const res=checkTx(a,t.req,t.opt,v); if(res.all) CUR.ok++;
+    $('#fb').innerHTML = txFeedback(res, render(t.rb,v,'d'), render(t.rb,v,'s')) + (t.note?`<p class="small" style="margin:0 0 10px">${esc(t.note)}</p>`:'');
+    $('#mplay').onclick=()=>say(render(t.rb,v,'s'),$('#mplay'));
+    const x=$('#rtxt'); x.classList.remove('blur'); if($('#tgl')) $('#tgl').hidden=true;
+    nextBtn(()=>{ CUR.i++; if(CUR.i>=CUR.items.length) return showResult('Collazione',CUR.ok,CUR.items.length,'',startRb); rbRender(true); });
+  };
+}
+
+/* =========================================================
+   4) VOLO SIMULATO
+   ========================================================= */
+const OZ = ['Chiamata a «Ozzano traffico»','ozzanotraffico'];
+const SCEN = [
+ { id:'circ', title:'Circuito a Ozzano', sub:'Rullaggio, decollo, circuito e atterraggio in autoinformazione',
+   intro:'Campo senza ente ATS: ogni chiamata è un\'autoinformazione rivolta al traffico, iniziata e chiusa con «Ozzano traffico». Circuito VDS a 500 piedi sul lato ovest della pista.',
+   steps:[
+   {type:'tx', ctx:'Sei al parcheggio, motore avviato. Pista in uso {RWY}. Annuncia che rulli verso il punto attesa.',
+    model:'Ozzano traffico, {CS}, rullo al punto attesa pista {RWY}, Ozzano traffico.',
+    req:[OZ,NOM,['Rullaggio','rull'],['Pista {RWY}','pista{RWY}']], opt:[['Punto attesa','punto(di)?attesa']]},
+   {type:'choice', radio:'Ozzano traffico, {TCS}, finale pista {RWY}, Ozzano traffico.', who:'Traffico in frequenza',
+    ctx:'Sei al punto attesa, prove motore fatte. In frequenza senti questo traffico. Cosa fai?',
+    opts:['Aspetto che atterri e liberi la pista, poi annuncio l\'allineamento','Mi allineo subito: ho tutto il tempo','Chiedo a {TCS} di riattaccare','Decollo senza annunciarmi per non occupare la frequenza'],
+    expl:'Chi è in finale ha la precedenza. Lo cerchi con lo sguardo, aspetti che liberi e poi ti annunci.'},
+   {type:'tx', ctx:'Il traffico ha liberato la pista. Annuncia che ti allinei e decolli, e che rimani in circuito.',
+    model:'Ozzano traffico, {CS}, allineo e decollo pista {RWY}, rimango in circuito, Ozzano traffico.',
+    req:[OZ,NOM,['Allineamento','allin'],['Decollo','decoll'],['Pista {RWY}','pista{RWY}']], opt:[['Rimango in circuito','circuit']]},
+   {type:'tx', ctx:'Sei in sottovento {SIDE} per la {RWY}, a 500 piedi. Annunciati.',
+    model:'Ozzano traffico, {CS}, sottovento {SIDE} pista {RWY}, Ozzano traffico.',
+    req:[OZ,NOM,['Sottovento','sottovento'],['Pista {RWY}','pista{RWY}']], opt:[['Lato del circuito ({SIDE})','{SIDE}']]},
+   {type:'choice', radio:'Ozzano traffico, {TCS}, sottovento {SIDE} pista {RWY}, Ozzano traffico.', who:'Traffico in frequenza',
+    ctx:'Mentre sei in sottovento senti questo traffico, che però non vedi. Cosa fai?',
+    opts:['Lo cerco e chiedo la sua posizione in frequenza: «{TCS}, {CSA}, riporti la posizione»','Viro subito in base per anticiparlo','Ignoro: in sottovento ci sono già io','Esco dal circuito senza dirlo'],
+    expl:'Finché non hai il traffico in vista è meglio chiarire la posizione via radio che indovinare.'},
+   {type:'tx', ctx:'Hai il traffico in vista davanti a te. Ora sei in base. Annunciati.',
+    model:'Ozzano traffico, {CS}, base pista {RWY}, Ozzano traffico.',
+    req:[OZ,NOM,['Base','base'],['Pista {RWY}','pista{RWY}']]},
+   {type:'tx', ctx:'Sei in finale per un atterraggio con arresto.',
+    model:'Ozzano traffico, {CS}, finale pista {RWY}, atterraggio con arresto, Ozzano traffico.',
+    req:[OZ,NOM,['Finale','finale'],['Pista {RWY}','pista{RWY}']], opt:[['Intenzione (atterraggio)','atterr']]},
+   {type:'tx', ctx:'Sei atterrato e hai liberato la pista al raccordo. Annuncialo.',
+    model:'Ozzano traffico, {CS}, pista libera, rullo al parcheggio, Ozzano traffico.',
+    req:[OZ,NOM,['Pista libera','pistaliber|liber\\w*(la)?pista']], opt:[['Rullaggio al parcheggio','parchegg']]}
+ ]},
+ { id:'emg', title:'Emergenza in circuito', sub:'Urgenza, soccorso e codici transponder',
+   intro:'Durante un circuito a Ozzano il motore dà problemi. Scegli il messaggio giusto e trasmettilo nell\'ordine corretto.',
+   steps:[
+   {type:'choice', ctx:'In sottovento {SIDE} il motore perde potenza ma gira ancora: puoi rientrare sul campo. Che messaggio lanci?',
+    opts:['PAN PAN, ripetuto tre volte','MAYDAY, ripetuto tre volte','Nessuno: atterro e basta','Solo squawk 7600'],
+    expl:'Problema serio ma senza pericolo grave e imminente: è un messaggio di urgenza.'},
+   {type:'tx', ctx:'Lancia il messaggio di urgenza sulla frequenza del campo: chi sei, cosa succede, dove sei e cosa intendi fare.',
+    model:'PAN PAN, PAN PAN, PAN PAN, Ozzano traffico, {CS}, perdita di potenza al motore, sottovento {SIDE} pista {RWY}, rientro per atterraggio immediato.',
+    req:[['PAN PAN ×3','(panpan){3}'],NOM,['Natura del problema (motore)','motor|potenz'],['Intenzioni (atterraggio)','atterr']], opt:[['Posizione (sottovento)','sottovento'],OZ]},
+   {type:'choice', ctx:'A 400 piedi il motore si spegne del tutto. La situazione è cambiata: cosa trasmetti?',
+    opts:['MAYDAY, ripetuto tre volte','PAN PAN, ripetuto tre volte','Niente: ho già dichiarato urgenza','Ripeto il messaggio di prima'],
+    expl:'Ora c\'è un pericolo grave e imminente: si passa al soccorso.'},
+   {type:'tx', ctx:'Lancia il MAYDAY: sei in base per la {RWY}, fai un atterraggio forzato sul campo.',
+    model:'MAYDAY, MAYDAY, MAYDAY, Ozzano traffico, {CS}, motore spento, base pista {RWY}, atterraggio forzato sul campo.',
+    req:[['MAYDAY ×3','(mayday){3}'],NOM,['Natura del problema (motore)','motor'],['Intenzioni (atterraggio)','atterr']], opt:[['Posizione (base)','base'],OZ]},
+   {type:'choice', ctx:'Se hai il transponder, che codice imposti in emergenza?',
+    opts:['7700','7600','7500','7000'], expl:'7700 emergenza, 7600 avaria radio, 7500 interferenza illecita.'},
+   {type:'choice', ctx:'Altro volo: a un certo punto la radio smette di funzionare. Che codice imposti?',
+    opts:['7600','7700','7500','2000'], expl:'Poi continui a trasmettere alla cieca le tue posizioni: qualcuno potrebbe riceverti.'}
+ ]}
+];
+function buildSimList(){
+  $('#sim-list').innerHTML = SCEN.map((s,i)=>`<button class="it" data-i="${i}"><div><div>${esc(s.title)}</div><div class="small">${esc(s.sub)}</div></div><span class="chev">›</span></button>`).join('');
+  $$('#sim-list .it').forEach(b=>b.onclick=()=>startSim(+b.dataset.i));
+}
+function startSim(idx){
+  const sc=SCEN[idx], v=baseVars();
+  const rwy=pick(['03','21']), side= rwy==='03'?'sinistro':'destro';
+  const tcs=genMarca(), tc=csClean(tcs);
+  Object.assign(v,{RWY:V(rwy,spell(rwy,true)), SIDE:V(side,side), TCS:V(tcs,spell(tc,true))});
+  CUR={mod:'sim',idx,sc,v,i:0,ok:0,items:sc.steps,log:[],intro:true};
+  show('run'); simIntro();
+}
+function simIntro(){
+  const {sc,v}=CUR;
+  RUN.innerHTML = `<h1 class="large">${esc(sc.title)}</h1><div class="card"><p class="ctx">${esc(sc.intro)}</p>
+    <p class="small" style="margin:0">Il tuo nominativo: <b>${esc(v.CS.d)}</b> · pista in uso: <b>${esc(v.RWY.d)}</b></p></div>
+    <button class="btn" id="go">Inizia</button>`;
+  $('#go').onclick=()=>simRender(true);
+}
+function simRender(auto){
+  const st=CUR.items[CUR.i], v=CUR.v;
+  const ctx=render(st.ctx,v,'d');
+  if(st.type==='choice'){
+    const opts=shuffle(st.opts.map((t,i)=>({t:render(t,v,'d'),good:i===0})));
+    RUN.innerHTML = progress()+`<div class="card"><span class="tag">Decisione</span>
+      ${st.radio?radioBox(st.who,render(st.radio,v,'d'),render(st.radio,v,'s'),true)+'<div style="height:12px"></div>':''}
+      <p class="ctx" style="font-weight:600">${esc(ctx)}</p></div>
+      <div class="list" id="opts">${opts.map((o,i)=>`<button class="it" data-i="${i}">${esc(o.t)}<span class="mark"></span></button>`).join('')}</div>
+      <div id="fb"></div><div id="act"></div>`;
+    if(st.radio){ const s=render(st.radio,v,'s'); wireRadio(s); if(auto) say(s,$('#play')); }
+    $$('#opts .it').forEach(b=>b.onclick=()=>{
+      const o=opts[+b.dataset.i];
+      $$('#opts .it').forEach((x,i)=>{ x.disabled=true; if(opts[i].good){x.classList.add('ok');x.querySelector('.mark').textContent='✓';} });
+      if(!o.good){ b.classList.add('ko'); b.querySelector('.mark').textContent='✕'; } else CUR.ok++;
+      CUR.log.push({ctx, ok:o.good});
+      $('#fb').innerHTML=`<div class="fb ${o.good?'ok':'ko'}"><b class="t">${o.good?'Giusto':'Non è la scelta migliore'}</b>${esc(render(st.expl||'',v,'d'))}</div>`;
+      nextBtn(simNext);
+    });
+  } else {
+    RUN.innerHTML = progress()+`<div class="card"><span class="tag">Trasmetti</span>
+      <p class="ctx">${esc(ctx)}</p>
+      ${composer('Scrivi o detta la tua trasmissione…')}
+      <div id="fb"></div><div id="act"><button class="btn" id="chk">Trasmetti</button></div></div>`;
+    wireMic($('#mic'),$('#ans'));
+    $('#chk').onclick=()=>{
+      stopRec();
+      const a=$('#ans').value.trim(); if(!a){ $('#ans').focus(); return; }
+      const res=checkTx(a,st.req,st.opt,v); if(res.all) CUR.ok++;
+      CUR.log.push({ctx, ok:res.all});
+      $('#fb').innerHTML=txFeedback(res,render(st.model,v,'d'),render(st.model,v,'s'));
+      $('#mplay').onclick=()=>say(render(st.model,v,'s'),$('#mplay'));
+      nextBtn(simNext);
+    };
+  }
+}
+function simNext(){
+  CUR.i++;
+  if(CUR.i>=CUR.items.length){
+    const ex = `<div class="list">${CUR.log.map(l=>`<div class="it" style="cursor:default"><span style="flex:1">${esc(l.ctx)}</span><span class="mark" style="color:${l.ok?'var(--green)':'var(--red)'}">${l.ok?'✓':'✕'}</span></div>`).join('')}</div>`;
+    const idx=CUR.idx;
+    return showResult(CUR.sc.title,CUR.ok,CUR.items.length,ex,()=>startSim(idx));
+  }
+  simRender(true);
+}
+
+/* ---------- impostazioni ---------- */
+function openSettings(){
+  running=false;
+  $('#set-cs').value=S.cs; updCsSp();
+  $('#set-rate').value=S.rate; $('#set-rate-v').textContent='×'+(+S.rate).toFixed(2);
+  $('#set-voice').textContent = !HAS_TTS ? 'La sintesi vocale non è disponibile su questo browser.'
+    : VOICE ? 'Voce in uso: '+VOICE.name : 'Nessuna voce italiana trovata: il browser userà quella predefinita.';
+  show('set');
+}
+function updCsSp(){ const c=csVars(S.cs); $('#set-cs-sp').textContent = c.d+' → '+spell(csClean(S.cs),false)+' · abbreviato '+c.ad; }
+$('#set-cs').addEventListener('input',e=>{
+  const v=e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g,'');
+  if(csClean(v).length>=3){ S.cs=v; LS.set('cs',v); updCsSp(); }
+});
+$('#set-rate').addEventListener('input',e=>{ S.rate=+e.target.value; LS.set('rate',S.rate); $('#set-rate-v').textContent='×'+S.rate.toFixed(2); });
+$('#set-test').onclick=()=>{ const c=csVars(S.cs); say(c.s+', vento due tre zero gradi otto nodi, pista zero tre, autorizzato al decollo'); };
+
+history.replaceState({s:null},'');
+</script>
+</body>
+</html>
