@@ -224,8 +224,10 @@ input[type=range]{width:100%}
     <div class="card">
       <div class="set-row"><span>Velocità</span><span id="set-rate-v" class="small"></span></div>
       <input id="set-rate" type="range" min="0.7" max="1.3" step="0.05">
+      <select id="set-voice-sel" class="field" style="margin-top:12px" aria-label="Voce"></select>
       <button class="btn tinted" id="set-test" style="margin-top:12px">Prova la voce</button>
       <p class="small" id="set-voice" style="margin:10px 0 0"></p>
+      <p class="small" style="margin:10px 0 0">Per una voce più naturale scarica una voce italiana «Premium» o «Migliorata»: su iPhone in Impostazioni › Accessibilità › Contenuto letto › Voci › Italiano, su Mac in Impostazioni di Sistema › Accessibilità › Contenuto letto › Voce di sistema › Gestisci voci. Poi riapri la pagina e sceglila qui sopra.</p>
     </div>
   </section>
 
@@ -329,11 +331,28 @@ function squelch(){
   }catch(e){}
 }
 const HAS_TTS = 'speechSynthesis' in window;
-let VOICE=null;
+let VOICE=null, VOICES=[];
+function voiceScore(v){
+  const n=v.name.toLowerCase(); let s=0;
+  if(/premium/.test(n)) s+=50;
+  if(/enhanced|migliorat|avanzat/.test(n)) s+=40;
+  if(/neural|natural|online/.test(n)) s+=35;
+  if(/google/.test(n)) s+=25;
+  if(/alice|federica|emma|isabella|elsa|diego|luca|paola|giorgio/.test(n)) s+=5;
+  if(/compact|eloquence|espeak|grandma|grandpa|nonn|rocko|shelley|flo|reed|sandy/.test(n)) s-=30;
+  return s;
+}
 function pickVoice(){
   if(!HAS_TTS) return;
-  const vs=speechSynthesis.getVoices().filter(v=>/^it([-_]|$)/i.test(v.lang));
-  VOICE = vs.find(v=>v.localService) || vs[0] || null;
+  VOICES=speechSynthesis.getVoices().filter(v=>/^it([-_]|$)/i.test(v.lang)).sort((a,b)=>voiceScore(b)-voiceScore(a));
+  const saved=LS.get('voice',null);
+  VOICE = VOICES.find(v=>v.name===saved) || VOICES[0] || null;
+  fillVoiceSelect();
+}
+function fillVoiceSelect(){
+  const sel=document.getElementById('set-voice-sel'); if(!sel) return;
+  sel.innerHTML = VOICES.map(v=>`<option value="${esc(v.name)}"${VOICE&&v.name===VOICE.name?' selected':''}>${esc(v.name)}</option>`).join('');
+  sel.hidden = VOICES.length<2;
 }
 if(HAS_TTS){ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }
 let speakingBtn=null;
@@ -352,21 +371,74 @@ function say(text, btn){
 
 /* ---------- riconoscimento vocale ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-let activeRec=null;
-function stopRec(){ if(activeRec){ try{activeRec.abort()}catch(e){} activeRec=null; } }
+const IS_BRAVE = !!navigator.brave;
+const MIC_ERR = {
+  'network': IS_BRAVE
+    ? 'Brave non supporta il riconoscimento vocale. Apri la pagina con Chrome o Safari, oppure usa la dettatura della tastiera.'
+    : 'Il riconoscimento vocale non è raggiungibile: controlla la connessione, oppure usa la dettatura della tastiera.',
+  'not-allowed': 'Il microfono è bloccato. Consenti l\'accesso al microfono per questo sito nelle impostazioni del browser e riprova.',
+  'service-not-allowed': 'Il browser non permette il riconoscimento vocale su questa pagina. Prova con Chrome o Safari, oppure usa la dettatura della tastiera.',
+  'audio-capture': 'Nessun microfono trovato. Controlla che sia collegato e non usato da un\'altra app.',
+  'language-not-supported': 'Il riconoscimento vocale in italiano non è disponibile su questo browser.'
+};
+let MIC=null;
+function micStatus(m, txt, err){
+  if(!m.st) return;
+  m.st.textContent = txt||''; m.st.hidden = !txt;
+  m.st.style.color = err ? 'var(--red)' : '';
+}
+function micEnd(m, msg, err){
+  m.want=false; m.btn.classList.remove('rec');
+  micStatus(m, msg, err);
+  if(MIC===m) MIC=null;
+}
+function stopRec(){
+  const m=MIC; if(!m) return;
+  m.want=false;
+  try{ m.rec && m.rec.stop(); }catch(e){}
+  micEnd(m,'');
+}
+function micRun(m){
+  const rec=new SR(); m.rec=rec;
+  rec.lang='it-IT'; rec.interimResults=true; rec.continuous=true; rec.maxAlternatives=1;
+  let fin='', live='', t0=Date.now(), heard=false;
+  rec.onresult = e => {
+    fin=''; live='';
+    for(const r of e.results){ if(r.isFinal) fin+=r[0].transcript+' '; else live+=r[0].transcript; }
+    heard=true; m.quick=0;
+    m.field.value = (m.base + m.done + fin + live).replace(/\s+/g,' ').trimStart();
+  };
+  rec.onerror = e => {
+    if(e.error==='no-speech' || e.error==='aborted') return;
+    m.fatal = MIC_ERR[e.error] || ('Il riconoscimento vocale si è interrotto ('+e.error+'). Riprova o rispondi scrivendo.');
+  };
+  rec.onend = () => {
+    m.done += fin;
+    if(MIC!==m || !m.want) return;
+    if(m.fatal) return micEnd(m, m.fatal, true);
+    if(Date.now()-m.t0 > 60000) return micEnd(m, '');
+    if(!heard && Date.now()-t0 < 800 && ++m.quick >= 3)
+      return micEnd(m, 'Su questo browser il microfono si chiude subito. Usa Chrome o Safari, oppure la dettatura della tastiera.', true);
+    setTimeout(()=>{ if(MIC===m && m.want) micRun(m); }, 150);
+  };
+  try{ rec.start(); }catch(e){ micEnd(m,'Impossibile avviare il microfono. Riprova.', true); }
+}
 function wireMic(btn, field){
   if(!SR){ btn.hidden=true; return; }
+  let st = btn.closest('.composer') && btn.closest('.composer').nextElementSibling;
+  if(!st || !st.classList.contains('mic-st')){
+    st=document.createElement('p'); st.className='small mic-st'; st.hidden=true; st.style.margin='-4px 0 10px';
+    (btn.closest('.composer')||btn).after(st);
+  }
   btn.onclick = () => {
-    if(activeRec){ activeRec.stop(); return; }
+    if(MIC && MIC.btn===btn){ stopRec(); return; }
+    stopRec();
     if(HAS_TTS) speechSynthesis.cancel();
-    const rec=new SR(); activeRec=rec;
-    rec.lang='it-IT'; rec.interimResults=true; rec.continuous=false; rec.maxAlternatives=1;
-    const base = field.value.trim() ? field.value.trim()+' ' : '';
-    rec.onresult = e => { let t=''; for(const r of e.results) t+=r[0].transcript; field.value = base+t; };
-    rec.onend = () => { btn.classList.remove('rec'); if(activeRec===rec) activeRec=null; };
-    rec.onerror = () => {};
-    btn.classList.add('rec');
-    try{ rec.start(); }catch(e){ btn.classList.remove('rec'); activeRec=null; }
+    const v=field.value.trim();
+    const m={btn, field, st, want:true, base: v ? v+' ' : '', done:'', quick:0, fatal:null, t0:Date.now()};
+    MIC=m; btn.classList.add('rec');
+    micStatus(m,'In ascolto… tocca di nuovo il microfono quando hai finito.');
+    micRun(m);
   };
 }
 
@@ -400,7 +472,9 @@ $$('[data-go]').forEach(b => b.onclick = () => {
   const g=b.dataset.go;
   if(g==='alfa') show('alfa'); else if(g==='quiz') startQuiz(); else if(g==='rb') startRb(); else if(g==='sim') { buildSimList(); show('sim'); }
 });
-$('#mic-note').textContent = SR
+$('#mic-note').textContent = IS_BRAVE
+  ? 'Su Brave il riconoscimento vocale non funziona: per rispondere a voce apri la pagina con Chrome o Safari, oppure usa la dettatura della tastiera.'
+  : SR
   ? 'Puoi rispondere a voce con il pulsante del microfono, oppure scrivendo.'
   : 'Il riconoscimento vocale non è disponibile su questo browser: rispondi scrivendo, anche con la dettatura della tastiera.';
 
@@ -806,8 +880,9 @@ function openSettings(){
   running=false;
   $('#set-cs').value=S.cs; updCsSp();
   $('#set-rate').value=S.rate; $('#set-rate-v').textContent='×'+(+S.rate).toFixed(2);
+  pickVoice();
   $('#set-voice').textContent = !HAS_TTS ? 'La sintesi vocale non è disponibile su questo browser.'
-    : VOICE ? 'Voce in uso: '+VOICE.name : 'Nessuna voce italiana trovata: il browser userà quella predefinita.';
+    : VOICE ? 'Voci italiane trovate: '+VOICES.length : 'Nessuna voce italiana trovata: il browser userà quella predefinita.';
   show('set');
 }
 function updCsSp(){ const c=csVars(S.cs); $('#set-cs-sp').textContent = c.d+' → '+spell(csClean(S.cs),false)+' · abbreviato '+c.ad; }
@@ -816,6 +891,7 @@ $('#set-cs').addEventListener('input',e=>{
   if(csClean(v).length>=3){ S.cs=v; LS.set('cs',v); updCsSp(); }
 });
 $('#set-rate').addEventListener('input',e=>{ S.rate=+e.target.value; LS.set('rate',S.rate); $('#set-rate-v').textContent='×'+S.rate.toFixed(2); });
+$('#set-voice-sel').addEventListener('change',e=>{ VOICE=VOICES.find(v=>v.name===e.target.value)||VOICE; if(VOICE) LS.set('voice',VOICE.name); });
 $('#set-test').onclick=()=>{ const c=csVars(S.cs); say(c.s+', vento due tre zero gradi otto nodi, pista zero tre, autorizzato al decollo'); };
 
 history.replaceState({s:null},'');
